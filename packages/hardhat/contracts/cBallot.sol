@@ -2,12 +2,12 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
-/** 
- * @title Ballot
+/**
+ * @title cBallot
  * @dev Implements voting process along with vote delegation
  */
-contract Ballot {
-   
+contract cBallot {
+
     struct Voter {
         uint weight; // weight is accumulated by delegation
         bool voted;  // if true, that person already voted
@@ -16,38 +16,88 @@ contract Ballot {
     }
 
     struct Proposal {
-        // If you can limit the length to a certain number of bytes, 
+        // If you can limit the length to a certain number of bytes,
         // always use one of bytes1 to bytes32 because they are much cheaper
-        bytes32 name;   // short name (up to 32 bytes)
+        string name;   // short name
+        string content; // content of proposal
         uint voteCount; // number of accumulated votes
     }
+    uint public nbProposals = 0;
 
     address public chairperson;
-
+    string public proposalsName;
     mapping(address => Voter) public voters;
 
     Proposal[] public proposals;
 
-    /** 
+    /**
      * @dev Create a new ballot to choose one of 'proposalNames'.
-     * @param proposalNames names of proposals
+     * @param _proposalsName names of proposals
      */
-    constructor(bytes32[] memory proposalNames) {
+    constructor(string memory _proposalsName) {
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
+        proposalsName = _proposalsName;
+    }
 
-        for (uint i = 0; i < proposalNames.length; i++) {
-            // 'Proposal({...})' creates a temporary
-            // Proposal object and 'proposals.push(...)'
-            // appends it to the end of 'proposals'.
-            proposals.push(Proposal({
-                name: proposalNames[i],
-                voteCount: 0
-            }));
+    modifier onlyChairperson {
+        require(msg.sender == chairperson, "Only chairperson can apply");
+        _;
+    }
+
+    modifier onlyVoters {
+        require (voters[msg.sender].weight > 0, "only voters can apply");
+        _;
+    }
+
+    /**
+     * @dev transfer chairperson Role - transfer ownability
+     * @param _newChairAddress address of new Chairpersonn
+     */
+    function transferChairpersonRole(address _newChairAddress) external onlyChairperson {
+        chairperson = _newChairAddress;
+        if (voters[_newChairAddress].weight < 1) {
+            voters[_newChairAddress].weight = 1;
         }
     }
-    
-    /** 
+    /**
+     * @dev return proposals counter
+     */
+    function getNbProposals() public view returns(uint) {
+        return nbProposals;
+    }
+    /**
+     * @dev return proposal data
+     * @param _idProposal id of proposal
+     */
+    function readProposal(uint _idProposal) public view returns(
+        string memory proposalName,
+        string memory proposalContent,
+        uint nbVotes
+    ) {
+        require(_idProposal < nbProposals, "Proposal not found");
+        return(
+        proposals[_idProposal].name,
+        proposals[_idProposal].content,
+        proposals[_idProposal].voteCount
+        );
+    }
+
+    /**
+     * @dev create New Proposal requiring voter role
+     * @param _newProposalName new proposal title
+     * @param _newProposalContent new proposal content
+     */
+    function addProposal(string memory _newProposalName, string memory _newProposalContent) external onlyVoters {
+        proposals[nbProposals] = Proposal(
+            _newProposalName,
+            _newProposalContent,
+            0
+        );
+        nbProposals++;
+    }
+
+    /**
      * @dev Give 'voter' the right to vote on this ballot. May only be called by 'chairperson'.
      * @param voter address of voter
      */
@@ -110,12 +160,12 @@ contract Ballot {
         proposals[proposal].voteCount += sender.weight;
     }
 
-    /** 
+    /**
      * @dev Computes the winning proposal taking all previous votes into account.
      * @return winningProposal_ index of winning proposal in the proposals array
      */
     function winningProposal() public view
-            returns (uint winningProposal_)
+    returns (uint winningProposal_)
     {
         uint winningVoteCount = 0;
         for (uint p = 0; p < proposals.length; p++) {
@@ -126,13 +176,28 @@ contract Ballot {
         }
     }
 
-    /** 
+    /**
      * @dev Calls winningProposal() function to get the index of the winner contained in the proposals array and then
      * @return winnerName_ the name of the winner
      */
     function winnerName() public view
-            returns (bytes32 winnerName_)
+    returns (string memory winnerName_)
     {
-        winnerName_ = proposals[winningProposal()].name;
+        return proposals[winningProposal()].name;
     }
+
+
+    /**
+     * @dev return winning proposal
+     */
+    function readWinnerProposal() public view returns(
+        string memory _winnerName,
+        string memory _winnerContent,
+        uint _winnerVoteCount) {
+        return(
+        proposals[winningProposal()].name,
+        proposals[winningProposal()].content,
+        proposals[winningProposal()].voteCount);
+    }
+
 }

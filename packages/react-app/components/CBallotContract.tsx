@@ -6,9 +6,9 @@ import { useContractKit } from "@celo-tools/use-contractkit";
 import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { truncateAddress } from "@/utils";
-import { Ballot } from "../../hardhat/types/Ballot";
+import { cBallot } from "../../hardhat/types/cBallot";
 
-export function BallotContract({ contractData }) {
+export function CBallotContract({ contractData }) {
     const { kit, address, network, performActions } = useContractKit();
     const [chairpersonValue, setChairpersonValue] = useState<string>("");
    

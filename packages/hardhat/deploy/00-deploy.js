@@ -27,10 +27,10 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   });
 
-  await deploy("Ballot", {
+  await deploy("cBallot", {
     from: deployer,
-    args: ["proposal1", "proposal2"],
-    log:true,
+    args: [ "proposal1" ],
+    log: true,
   });
 
   // Getting a previously deployed contract
@@ -65,4 +65,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
 };
 
-module.exports.tags = ["Greeter", "Storage", "Ballot"];
+module.exports.tags = ["Greeter", "Storage", "cBallot"];
