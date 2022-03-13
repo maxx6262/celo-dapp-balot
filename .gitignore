@@ -1,1 +1,8 @@
 node_modules
+/.idea/.gitignore
+/packages/hardhat/deployments/alfajores/cBallot.json
+/.idea/celo-progressive-dapp-starter.iml
+/packages/hardhat/deployments/alfajores/solcInputs/ee4f5617570044a1e99c98a945f66b7b.json
+/.idea/modules.xml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
