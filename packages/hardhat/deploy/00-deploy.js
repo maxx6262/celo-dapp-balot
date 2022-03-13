@@ -29,7 +29,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   await deploy("cBallot", {
     from: deployer,
-    args: [ "proposal1" ],
+    args: [ { 'proposal1' : 'proposal2' } ],
     log: true,
   });
 
